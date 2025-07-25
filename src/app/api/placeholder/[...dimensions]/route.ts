@@ -1,20 +1,27 @@
 import { NextResponse } from 'next/server';
 
+// Define the params type for the catch-all route [...dimensions]
+type Params = {
+  params: {
+    dimensions: string[];
+  };
+};
+
 export async function GET(
   request: Request,
-  { params }: { params: { dimensions: string[] } }
+  { params }: Params
 ) {
   try {
     const [width = '400', height = '300'] = params.dimensions;
-    
+
     const w = parseInt(width);
     const h = parseInt(height);
-    
+
     if (isNaN(w) || isNaN(h) || w <= 0 || h <= 0 || w > 2000 || h > 2000) {
       return NextResponse.json({ error: 'Invalid dimensions' }, { status: 400 });
     }
-    
-    // Generate a simple placeholder image using Canvas
+
+    // Generate a simple placeholder image using SVG
     const canvas = `
       <svg width="${w}" height="${h}" xmlns="http://www.w3.org/2000/svg">
         <rect width="100%" height="100%" fill="#374151"/>
@@ -27,7 +34,7 @@ export async function GET(
         </text>
       </svg>
     `;
-    
+
     return new Response(canvas, {
       headers: {
         'Content-Type': 'image/svg+xml',

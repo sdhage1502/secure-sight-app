@@ -1,8 +1,8 @@
 @layer components {
   .dashboard-card {
-    @apply bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 lg:p-6 
-    border border-gray-100 dark:border-gray-800 transition-all duration-200
-    hover:shadow-xl dark:shadow-gray-900/30;
+    @apply bg-white/50 dark:bg-gray-900/50 rounded-xl shadow-lg p-4 lg:p-6 
+    border border-gray-200 dark:border-gray-800 backdrop-blur-sm
+    hover:shadow-xl transition-all duration-200;
   }
 
   .dashboard-header {
@@ -12,11 +12,13 @@
 
   .nav-item {
     @apply flex items-center space-x-2 px-4 py-3 rounded-xl cursor-pointer 
-    transition-all duration-200 hover:scale-[1.02];
+    transition-all duration-200 hover:scale-[1.02] bg-white/10 dark:bg-gray-800/10
+    hover:bg-white/20 dark:hover:bg-gray-800/20;
   }
 
   .nav-item-active {
-    @apply bg-indigo-600 text-white shadow-lg shadow-indigo-500/20;
+    @apply bg-gradient-to-r from-indigo-600 to-violet-600 text-white 
+    shadow-lg shadow-indigo-500/20;
   }
 
   .nav-item-inactive {
@@ -44,6 +46,7 @@
   }
 
   .glass-effect {
-    @apply bg-white/10 backdrop-blur-lg dark:bg-gray-900/50;
+    @apply bg-white/10 dark:bg-gray-900/50 backdrop-blur-lg 
+    border-b border-white/20 dark:border-gray-800/50;
   }
 }

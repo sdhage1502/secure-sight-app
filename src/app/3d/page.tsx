@@ -1,16 +1,7 @@
-'use client';
+import React from 'react'
 
-import { Canvas } from '@react-three/fiber';
-
-export default function ThreeD() {
+export default function page() {
   return (
-    <Canvas>
-      <ambientLight />
-      <pointLight position={[10, 10, 10]} />
-      <mesh>
-        <boxGeometry args={[1, 1, 1]} />
-        <meshStandardMaterial color="orange" />
-      </mesh>
-    </Canvas>
-  );
+    <div className="text-yellow-500 text-5xl text-center">3D WEBSITE</div>
+  )
 }

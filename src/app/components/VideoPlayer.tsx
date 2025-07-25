@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { 
   Play, 
   Pause, 
@@ -11,29 +11,14 @@ import {
   Maximize2,
   Volume2
 } from 'lucide-react';
-
-interface Camera {
-  id: number;
-  name: string;
-  location: string;
-}
-
-interface Incident {
-  id: number;
-  cameraId: number;
-  type: string;
-  tsStart: string;
-  tsEnd: string;
-  thumbnailUrl: string;
-  resolved: boolean;
-}
+import type { Camera, Incident } from '../types';
 
 interface VideoPlayerProps {
-  camera: Camera;
+  camera?: Camera;
   incidents: Incident[];
 }
 
-export default function VideoPlayer({ camera, incidents }: VideoPlayerProps) {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ camera, incidents = [] }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -48,7 +33,7 @@ export default function VideoPlayer({ camera, incidents }: VideoPlayerProps) {
     3: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4'
   };
 
-  const currentVideoUrl = videoSources[camera.id as keyof typeof videoSources] || videoSources[1];
+  const currentVideoUrl = videoSources[camera?.id as keyof typeof videoSources] || videoSources[1];
 
   useEffect(() => {
     const video = videoRef.current;
@@ -65,6 +50,17 @@ export default function VideoPlayer({ camera, incidents }: VideoPlayerProps) {
       video.removeEventListener('loadedmetadata', updateDuration);
     };
   }, [currentVideoUrl]);
+
+  useEffect(() => {
+    if (!camera) return;
+    // Reset video when camera changes
+    const video = videoRef.current;
+    if (video) {
+      video.currentTime = 0;
+      setCurrentTime(0);
+      setIsPlaying(false);
+    }
+  }, [camera?.id]);
 
   const togglePlay = () => {
     const video = videoRef.current;
@@ -119,6 +115,19 @@ export default function VideoPlayer({ camera, incidents }: VideoPlayerProps) {
     return `${date} - ${time}`;
   };
 
+  // Add error handling for video
+  const handleVideoError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+    console.error('Video playback error:', e);
+  };
+
+  if (!camera) {
+    return (
+      <div className="aspect-video bg-gray-900 rounded-lg flex items-center justify-center">
+        <p className="text-gray-400">No camera selected</p>
+      </div>
+    );
+  }
+
   return (
     <div ref={containerRef} className="relative bg-black rounded-lg overflow-hidden">
       {/* Video Display */}
@@ -129,6 +138,7 @@ export default function VideoPlayer({ camera, incidents }: VideoPlayerProps) {
           className="w-full h-full object-cover"
           onPlay={() => setIsPlaying(true)}
           onPause={() => setIsPlaying(false)}
+          onError={handleVideoError}
         />
         
         {/* Overlay Information */}
@@ -256,4 +266,6 @@ export default function VideoPlayer({ camera, incidents }: VideoPlayerProps) {
       `}</style>
     </div>
   );
-}
+};
+
+export default VideoPlayer;

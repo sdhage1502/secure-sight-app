@@ -1,30 +1,19 @@
+// src/app/api/incidents/route.ts or similar API route
 import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import dotenv from 'dotenv';
 
+// Load environment variables
+dotenv.config();
+
+// Initialize Prisma Client
 const prisma = new PrismaClient();
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { searchParams } = new URL(request.url);
-    const resolved = searchParams.get('resolved');
-    const cameraId = searchParams.get('cameraId');
-    
-    const whereClause: any = {};
-    
-    if (resolved !== null) {
-      whereClause.resolved = resolved === 'true';
-    }
-    
-    if (cameraId) {
-      whereClause.cameraId = parseInt(cameraId);
-    }
-
     const incidents = await prisma.incident.findMany({
-      where: whereClause,
       include: { camera: true },
-      orderBy: { tsStart: 'desc' },
     });
-    
     return NextResponse.json(incidents);
   } catch (error) {
     console.error('Error fetching incidents:', error);
@@ -34,26 +23,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const { cameraId, type, tsStart, tsEnd, thumbnailUrl } = await request.json();
-    
-    if (!cameraId || !type || !tsStart || !tsEnd) {
-      return NextResponse.json({ 
-        error: 'CameraId, type, tsStart, and tsEnd are required' 
-      }, { status: 400 });
-    }
-
+    const body = await request.json();
     const incident = await prisma.incident.create({
-      data: {
-        cameraId: parseInt(cameraId),
-        type,
-        tsStart: new Date(tsStart),
-        tsEnd: new Date(tsEnd),
-        thumbnailUrl: thumbnailUrl || '/api/placeholder/200/120',
-        resolved: false
-      },
-      include: { camera: true }
+      data: body,
+      include: { camera: true },
     });
-    
     return NextResponse.json(incident, { status: 201 });
   } catch (error) {
     console.error('Error creating incident:', error);

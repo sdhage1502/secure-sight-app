@@ -72,7 +72,7 @@ async function main() {
     const randomCamera = Math.floor(Math.random() * 3) + 1;
     const types = ['Unauthorised Access', 'Gun Threat', 'Face Recognised'];
     const randomType = types[Math.floor(Math.random() * types.length)];
-    const hoursAgo = Math.random() * 48 + 24; // 24-72 hours ago
+    const hoursAgo = Math.random() * 48 + 24; // Random time between 24-72 hours ago
     
     incidents.push(createIncident(randomCamera, randomType, hoursAgo, Math.floor(Math.random() * 5) + 1));
   }

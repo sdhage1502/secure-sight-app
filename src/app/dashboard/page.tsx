@@ -6,35 +6,14 @@ import VideoPlayer from '../components/VideoPlayer';
 import CameraList from '../components/CameraList';
 import IncidentsList from '../components/IncidentsList';
 import Timeline from '../components/Timeline';
-
-interface Camera {
-  id: number;
-  name: string;
-  location: string;
-  incidents: Incident[];
-}
-
-interface Incident {
-  id: number;
-  cameraId: number;
-  type: string;
-  tsStart: string;
-  tsEnd: string;
-  thumbnailUrl: string;
-  resolved: boolean;
-  camera: Camera;
-}
+import type { Camera, Incident } from '../types';
 
 export default function Dashboard() {
   const [cameras, setCameras] = useState<Camera[]>([]);
   const [incidents, setIncidents] = useState<Incident[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<Camera | null>(null);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchCameras();
-    fetchIncidents();
-  }, []);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchCameras = async () => {
     try {
@@ -61,6 +40,23 @@ export default function Dashboard() {
     }
   };
 
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      await Promise.all([fetchCameras(), fetchIncidents()]);
+    } catch (err) {
+      setError('Failed to load dashboard data');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const resolveIncident = async (incidentId: number) => {
     try {
       await fetch(`/api/incidents/${incidentId}`, {
@@ -80,11 +76,21 @@ export default function Dashboard() {
     );
   }
 
+  // Add error boundary
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-red-500 bg-red-500/10 px-4 py-2 rounded-lg">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
       <Header />
-      
-      <div className="p-4 lg:p-6">
+      <main className="container mx-auto px-4 py-6">
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Main Video Area */}
           <div className="xl:col-span-3">
@@ -107,10 +113,10 @@ export default function Dashboard() {
             {/* Camera List */}
             <div className="mt-4">
               <CameraList 
-                // cameras={cameras}
-                // selectedCamera={selectedCamera}
-                // onCameraSelect={setSelectedCamera}
-                // incidents={incidents}
+                cameras={cameras}
+                selectedCamera={selectedCamera}
+                onCameraSelect={setSelectedCamera}
+                incidents={incidents}
               />
             </div>
           </div>
@@ -123,7 +129,7 @@ export default function Dashboard() {
             />
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
