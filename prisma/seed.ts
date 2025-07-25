@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -8,6 +9,7 @@ async function main() {
   // Clear existing data
   await prisma.incident.deleteMany({});
   await prisma.camera.deleteMany({});
+  await prisma.user.deleteMany({});
 
   // Create cameras
   const cameras = await prisma.camera.createMany({
@@ -19,6 +21,18 @@ async function main() {
   });
 
   console.log(`✅ Created ${cameras.count} cameras`);
+
+  // Create initial user
+  const hashedPassword = await bcrypt.hash('admin123', 10);
+  const user = await prisma.user.create({
+    data: {
+      email: 'admin@example.com',
+      name: 'System Admin',
+      password: hashedPassword,
+    },
+  });
+
+  console.log(`✅ Created initial user: ${user.email}`);
 
   // Generate incidents for the last 24 hours with more realistic timing
   const now = new Date();
@@ -88,8 +102,10 @@ async function main() {
   const totalCameras = await prisma.camera.count();
   const totalIncidents = await prisma.incident.count();
   const unresolvedIncidents = await prisma.incident.count({ where: { resolved: false } });
+  const totalUsers = await prisma.user.count();
 
   console.log('📊 Database Summary:');
+  console.log(`   Users: ${totalUsers}`);
   console.log(`   Cameras: ${totalCameras}`);
   console.log(`   Total Incidents: ${totalIncidents}`);
   console.log(`   Unresolved Incidents: ${unresolvedIncidents}`);

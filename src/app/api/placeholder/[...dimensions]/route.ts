@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 
 // Define the params type for the catch-all route [...dimensions]
 type Params = {
-  params: {
+  params: Promise<{
     dimensions: string[];
-  };
+  }>;
 };
 
 export async function GET(
@@ -12,7 +12,8 @@ export async function GET(
   { params }: Params
 ) {
   try {
-    const [width = '400', height = '300'] = params.dimensions;
+    const resolvedParams = await params;
+    const [width = '400', height = '300'] = resolvedParams.dimensions;
 
     const w = parseInt(width);
     const h = parseInt(height);

@@ -1,6 +1,5 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { Camera } from 'lucide-react';
 import type { Camera as CameraType } from '../types';
 
@@ -22,7 +21,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({ cameras, onCameraSelect }) => {
             <img src="/image.png" alt={`Camera ${camera.id}`} className="w-full h-20 sm:h-24 md:h-28 object-cover" />
             <div className="absolute top-2 left-2 bg-black bg-opacity-70 px-2 py-1 rounded">
               <div className="flex items-center space-x-1">
-                <div className={`w-1.5 h-1.5 rounded-full ${camera.status === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                <div className={`w-1.5 h-1.5 rounded-full ${(camera.status || 'active') === 'active' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                 <span className="text-white text-xs">LIVE</span>
               </div>
             </div>
@@ -33,7 +32,7 @@ const CameraGrid: React.FC<CameraGridProps> = ({ cameras, onCameraSelect }) => {
               <Camera className="w-4 h-4 text-gray-400" />
             </div>
             <div className="text-xs text-gray-400 mt-1">
-              {camera.events.length > 0 ? camera.events[0].type : 'No Events'}
+              {camera.incidents && camera.incidents.length > 0 ? camera.incidents[0].type : 'No Incidents'}
             </div>
           </div>
         </div>

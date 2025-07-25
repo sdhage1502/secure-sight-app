@@ -14,13 +14,24 @@ model Camera {
   incidents Incident[]
 }
 
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  password  String   // hashed
+  createdAt DateTime @default(now())
+  incidents Incident[] // optional relation for audit
+}
+
 model Incident {
   id          Int      @id @default(autoincrement())
   cameraId    Int
+  userId      Int?     // optional relation to User for audit
   type        String
   tsStart     DateTime
   tsEnd       DateTime
   thumbnailUrl String
   resolved    Boolean  @default(false)
   camera      Camera   @relation(fields: [cameraId], references: [id])
+  user        User?    @relation(fields: [userId], references: [id])
 }

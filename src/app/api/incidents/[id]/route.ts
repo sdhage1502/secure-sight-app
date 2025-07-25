@@ -1,20 +1,32 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { getUserFromRequest } from '../../../lib/auth';
 
-const prisma = new PrismaClient();
+// Lazy initialize Prisma Client
+let prisma: PrismaClient | null = null;
+function getPrisma() {
+  if (!prisma) {
+    prisma = new PrismaClient();
+  }
+  return prisma;
+}
 
 // Define the params type based on the dynamic route [id]
 type Params = {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 };
 
 export async function PATCH(
-  request: Request,
+  request: NextRequest,
   { params }: Params
 ) {
-  const id = parseInt(params.id);
+  const user = getUserFromRequest(request);
+  if (!user) return new NextResponse('Unauthorized', { status: 401 });
+  
+  const resolvedParams = await params;
+  const id = parseInt(resolvedParams.id);
 
   if (isNaN(id)) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
@@ -23,7 +35,7 @@ export async function PATCH(
   try {
     const body = await request.json();
 
-    const incident = await prisma.incident.update({
+    const incident = await getPrisma().incident.update({
       where: { id },
       data: body,
       include: { camera: true },
@@ -37,17 +49,21 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
+  request: NextRequest,
   { params }: Params
 ) {
-  const id = parseInt(params.id);
+  const user = getUserFromRequest(request);
+  if (!user) return new NextResponse('Unauthorized', { status: 401 });
+  
+  const resolvedParams = await params;
+  const id = parseInt(resolvedParams.id);
 
   if (isNaN(id)) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
   }
 
   try {
-    await prisma.incident.delete({
+    await getPrisma().incident.delete({
       where: { id },
     });
 
@@ -59,17 +75,21 @@ export async function DELETE(
 }
 
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: Params
 ) {
-  const id = parseInt(params.id);
+  const user = getUserFromRequest(request);
+  if (!user) return new NextResponse('Unauthorized', { status: 401 });
+  
+  const resolvedParams = await params;
+  const id = parseInt(resolvedParams.id);
 
   if (isNaN(id)) {
     return NextResponse.json({ error: 'Invalid ID' }, { status: 400 });
   }
 
   try {
-    const incident = await prisma.incident.findUnique({
+    const incident = await getPrisma().incident.findUnique({
       where: { id },
       include: { camera: true },
     });

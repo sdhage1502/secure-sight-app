@@ -2,8 +2,8 @@ export interface Camera {
   id: number;
   name: string;
   location: string;
-  status: 'active' | 'inactive';
-  incidents?: Incident[];
+  status?: 'active' | 'inactive'; // Optional since not in Prisma schema
+  incidents?: Incident[]; // Optional relation
 }
 
 export interface Incident {
@@ -14,7 +14,7 @@ export interface Incident {
   tsEnd: string;
   thumbnailUrl: string;
   resolved: boolean;
-  camera?: Camera;
+  camera?: Camera; // Optional relation for when included
 }
 
 export type IncidentType = 

@@ -1,30 +1,37 @@
-import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
-import dotenv from 'dotenv';
+import { NextRequest, NextResponse } from 'next/server';
+import { getUserFromRequest } from '../../lib/auth';
 
-dotenv.config(); // Load .env file
-
-const prisma = new PrismaClient();
-
-export async function GET() {
-  try {
-    const cameras = await prisma.camera.findMany();
-    return NextResponse.json(cameras);
-  } catch (error) {
-    console.error('Error fetching cameras:', error);
-    return NextResponse.json({ error: 'Failed to fetch cameras' }, { status: 500 });
+const demoData = [
+  {
+    id: 1,
+    name: 'Main Entrance',
+    location: 'Building A, Front',
+    status: 'active',
+  },
+  {
+    id: 2,
+    name: 'Parking Lot',
+    location: 'Area B, Level 1',
+    status: 'active',
+  },
+  {
+    id: 3,
+    name: 'Loading Bay',
+    location: 'Warehouse C',
+    status: 'active',
   }
-}
+];
 
-export async function POST(request: Request) {
+export async function GET(req: NextRequest) {
+  const user = await getUserFromRequest(req);
+  if (!user) return new NextResponse('Unauthorized', { status: 401 });
+  
   try {
-    const body = await request.json();
-    const camera = await prisma.camera.create({
-      data: body,
-    });
-    return NextResponse.json(camera, { status: 201 });
+    return NextResponse.json(demoData);
   } catch (error) {
-    console.error('Error creating camera:', error);
-    return NextResponse.json({ error: 'Failed to create camera' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to fetch cameras' },
+      { status: 500 }
+    );
   }
 }

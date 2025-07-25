@@ -8,8 +8,25 @@ import {
   AlertTriangle, 
   Users, 
   Menu,
-  X
+  X,
+  LogOut
 } from 'lucide-react';
+
+// Mock user data and logout function
+const user = {
+  name: 'Shreyash Dhage',
+  email: 'shreyash@example.com',
+};
+const logout = () => alert('Logged out');
+
+// Helper function to generate user initials
+const getUserInitials = (name: string): string => {
+  return name
+    .split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join('');
+};
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -57,12 +74,22 @@ export default function Header() {
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-3">
               <div className="text-right">
-                <div className="text-white text-sm font-medium">Mohammed Ajhas</div>
-                <div className="text-gray-400 text-xs">ajhas@mandlac.com</div>
+                <div className="text-white text-sm font-medium">{user.name}</div>
+                <div className="text-gray-400 text-xs">{user.email}</div>
               </div>
-              <div className="w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-medium">MA</span>
-              </div>
+              <button
+                onClick={logout}
+                className="relative group w-10 h-10 bg-gray-600 rounded-full flex items-center justify-center hover:bg-gray-500 transition-colors"
+                title="Click to logout"
+              >
+                <span className="text-white font-medium group-hover:opacity-0 transition-opacity">
+                  {getUserInitials(user.name)}
+                </span>
+                <LogOut 
+                  size={16} 
+                  className="text-white absolute opacity-0 group-hover:opacity-100 transition-opacity"
+                />
+              </button>
             </div>
 
             {/* Mobile Menu Button */}
@@ -93,17 +120,26 @@ export default function Header() {
                 </button>
               ))}
             </nav>
-            
+
             {/* Mobile User Profile */}
             <div className="mt-4 pt-4 border-t border-gray-700">
-              <div className="flex items-center space-x-3 px-4">
-                <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-medium">MA</span>
+              <div className="flex items-center justify-between px-4">
+                <div className="flex items-center space-x-3">
+                  <div className="w-12 h-12 bg-gray-600 rounded-full flex items-center justify-center">
+                    <span className="text-white font-medium">{getUserInitials(user.name)}</span>
+                  </div>
+                  <div>
+                    <div className="text-white font-medium">{user.name}</div>
+                    <div className="text-gray-400 text-sm">{user.email}</div>
+                  </div>
                 </div>
-                <div>
-                  <div className="text-white font-medium">Mohammed Ajhas</div>
-                  <div className="text-gray-400 text-sm">ajhas@mandlac.com</div>
-                </div>
+                <button
+                  onClick={logout}
+                  className="p-2 text-gray-400 hover:text-white hover:bg-gray-700 rounded-lg transition-colors"
+                  title="Logout"
+                >
+                  <LogOut size={18} />
+                </button>
               </div>
             </div>
           </div>

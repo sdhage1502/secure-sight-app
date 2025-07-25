@@ -1,30 +1,25 @@
 'use client';
 
-import { AlertTriangle, Clock, CheckCircle2, Users, Eye, } from 'lucide-react';
-
-interface Camera {
-  id: number;
-  name: string;
-  location: string;
-}
-
-interface Incident {
-  id: number;
-  cameraId: number;
-  type: string;
-  tsStart: string;
-  tsEnd: string;
-  thumbnailUrl: string;
-  resolved: boolean;
-  camera: Camera;
-}
+import { AlertTriangle, Clock, CheckCircle2, Eye } from 'lucide-react';
+import type { Camera, Incident } from '../types';
 
 interface IncidentsListProps {
   incidents: Incident[];
   onResolveIncident: (incidentId: number) => void;
+  cameras?: Camera[]; // Add cameras prop to lookup camera data
 }
 
-export default function IncidentsList({ incidents, onResolveIncident }: IncidentsListProps) {
+export default function IncidentsList({ incidents, onResolveIncident, cameras = [] }: IncidentsListProps) {
+  
+  // Helper function to get camera data for an incident
+  const getCameraForIncident = (incident: Incident) => {
+    if (incident.camera) {
+      return incident.camera;
+    }
+    // Fall back to finding camera by ID from the cameras prop
+    const camera = cameras.find(c => c.id === incident.cameraId);
+    return camera || { id: incident.cameraId, name: `Camera ${incident.cameraId}`, location: 'Unknown location' };
+  };
   const unresolvedIncidents = incidents.filter(incident => !incident.resolved);
   const resolvedCount = incidents.length - unresolvedIncidents.length;
 
@@ -111,7 +106,9 @@ export default function IncidentsList({ incidents, onResolveIncident }: Incident
             <div className="text-gray-400">No unresolved incidents</div>
           </div>
         ) : (
-          unresolvedIncidents.map((incident) => (
+          unresolvedIncidents.map((incident) => {
+            const camera = getCameraForIncident(incident);
+            return (
             <div
               key={incident.id}
               className="bg-gray-700 rounded-lg p-4 hover:bg-gray-600 transition-colors"
@@ -143,10 +140,10 @@ export default function IncidentsList({ incidents, onResolveIncident }: Incident
                 </div>
                 <div>
                   <div className="text-white text-sm font-medium">
-                    {incident.camera.name}
+                    {camera.name}
                   </div>
                   <div className="text-gray-400 text-xs">
-                    {incident.camera.location}
+                    {camera.location}
                   </div>
                 </div>
               </div>
@@ -171,7 +168,8 @@ export default function IncidentsList({ incidents, onResolveIncident }: Incident
                 <span>on {formatDate(incident.tsStart)}</span>
               </div>
             </div>
-          ))
+          );
+          })
         )}
       </div>
 
